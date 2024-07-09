@@ -20,11 +20,13 @@ public class KeyboardHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
     @Override
     public void getGenerationTimeWiresPorts(Netlist theNetlist, AttributeSet attrs) {
         myPorts
-                .add(Port.INOUT, "PS2_CLK", 1, Keyboard.RE)
-                .add(Port.INOUT, "PS2_DAT", 1, Keyboard.CLR)
-                .add(Port.OUTPUT, "available", 1, Keyboard.AVL)
-                .add(Port.OUTPUT, "data", 8, Keyboard.OUT)
-                .add(Port.CLOCK, "clk", 1, Keyboard.CK);
+                .add(Port.INPUT, "reset", 1, Keyboard.RST)
+                .add(Port.INPUT, "address", 16, Keyboard.ADR)
+                .add(Port.INOUT, "PS2_CLK", 1, Keyboard.PCLK)
+                .add(Port.INOUT, "PS2_DAT", 1, Keyboard.PDAT)
+                .add(Port.OUTPUT, "data", 8, Keyboard.DATA)
+                .add(Port.CLOCK, "wr_clk", 1, Keyboard.WCLK)
+                .add(Port.CLOCK, "rd_clk", 1, Keyboard.RCLK);
     }
 
     @Override
@@ -34,14 +36,71 @@ public class KeyboardHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
         var contents = LineBuffer.getHdlBuffer();
 
         contents.add("""
+                wire [7:0] ps2_data;
+                
                 PS2_Controller inst (
-                    .CLOCK_50(clk),
+                    .CLOCK_50(wr_clk),
                     .reset(1'b0),
-                    .received_data(data),
+                    .received_data(ps2_data),
                     .received_data_en(available),
                     .PS2_CLK(PS2_CLK),
                     .PS2_DAT(PS2_DAT)
                 );
+                
+                reg [15:0] index = 0;
+                always @(posedge reset or posedge wr_clk) begin
+                    if (reset) index <= 0;
+                    else if (available) index <= index + 1;
+                end
+
+                altsyncram altsyncram_component (
+                             .address_a (index),
+                             .clock0 (wr_clk),
+                             .data_a (ps2_data),
+                             .wren_a (available),
+                             .rden_a (1'b0),
+                             .q_a (),
+                             .byteena_a (1'b1),
+                             .addressstall_a (1'b0),
+                             .aclr0 (1'b0),
+                             .aclr1 (1'b0),
+                             .address_b (address),
+                             .addressstall_b (1'b0),
+                             .byteena_b (1'b1),
+                             .clock1 (rd_clk),
+                             .clocken0 (1'b1),
+                             .clocken1 (1'b1),
+                             .clocken2 (1'b0),
+                             .clocken3 (1'b0),
+                             .data_b (),
+                             .eccstatus (),
+                             .q_b (data),
+                             .rden_b (1'b1),
+                             .wren_b (1'b0)
+                             );
+                
+                   defparam
+                         altsyncram_component.clock_enable_input_a = "BYPASS",
+                	     altsyncram_component.clock_enable_input_b = "BYPASS",
+                         altsyncram_component.clock_enable_output_a = "BYPASS",
+                		 altsyncram_component.clock_enable_output_b = "BYPASS",
+                         altsyncram_component.intended_device_family = "Cyclone V",
+                         altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
+                         altsyncram_component.lpm_type = "altsyncram",
+                         altsyncram_component.numwords_a = 65536,
+                         altsyncram_component.numwords_b = 65536,
+                         altsyncram_component.operation_mode = "BIDIR_DUAL_PORT",
+                         altsyncram_component.outdata_aclr_a = "NONE",
+                         altsyncram_component.outdata_reg_a = "UNREGISTERED",
+                         altsyncram_component.outdata_reg_b = "UNREGISTERED",
+                         altsyncram_component.power_up_uninitialized = "FALSE",
+                         altsyncram_component.widthad_a = 16,
+                         altsyncram_component.widthad_b = 16,
+                         altsyncram_component.width_a = 8,
+                         altsyncram_component.width_b = 8,
+                         altsyncram_component.width_byteena_a = 1,
+                         altsyncram_component.width_byteena_b = 1;
+                
                 """);
 
         return contents.empty();
