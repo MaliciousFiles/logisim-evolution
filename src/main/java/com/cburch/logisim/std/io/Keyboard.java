@@ -134,13 +134,13 @@ public class Keyboard extends InstanceFactory {
     return ret;
   }
 
-  private static final int CLR = 0;
+  protected static final int CLR = 0;
 
-  private static final int CK = 1;
-  private static final int RE = 2;
+  protected static final int CK = 1;
+  protected static final int RE = 2;
 
-  private static final int AVL = 3;
-  private static final int OUT = 4;
+  protected static final int AVL = 3;
+  protected static final int OUT = 4;
 
   private static final int DELAY0 = 9;
   private static final int DELAY1 = 11;
@@ -158,7 +158,7 @@ public class Keyboard extends InstanceFactory {
       Attributes.forIntegerRange("buflen", S.getter("keybBufferLengthAttr"), 1, 256);
 
   public Keyboard() {
-    super(_ID, S.getter("keyboardComponent"));
+    super(_ID, S.getter("keyboardComponent"), new KeyboardHdlGeneratorFactory());
     setAttributes(
         new Attribute[] {ATTR_BUFFER, StdAttr.EDGE_TRIGGER},
         new Object[] {32, StdAttr.TRIG_RISING});
@@ -171,7 +171,7 @@ public class Keyboard extends InstanceFactory {
     ps[CK] = new Port(0, 0, Port.INPUT, 1);
     ps[RE] = new Port(10, 10, Port.INPUT, 1);
     ps[AVL] = new Port(130, 10, Port.OUTPUT, 1);
-    ps[OUT] = new Port(140, 10, Port.OUTPUT, 7);
+    ps[OUT] = new Port(140, 10, Port.OUTPUT, 8);
     ps[CLR].setToolTip(S.getter("keybClearTip"));
     ps[CK].setToolTip(S.getter("keybClockTip"));
     ps[RE].setToolTip(S.getter("keybEnableTip"));
@@ -354,7 +354,7 @@ public class Keyboard extends InstanceFactory {
 
       c = state.getChar(0);
     }
-    final var out = Value.createKnown(BitWidth.create(7), c & 0x7F);
+    final var out = Value.createKnown(BitWidth.create(8), c);
     circState.setPort(OUT, out, DELAY0);
     circState.setPort(AVL, c != '\0' ? Value.TRUE : Value.FALSE, DELAY1);
   }
