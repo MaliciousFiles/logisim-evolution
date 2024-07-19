@@ -15,18 +15,15 @@ import java.util.Arrays;
 public class KeyboardHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
     public KeyboardHdlGeneratorFactory() {
         super();
-    }
 
-    @Override
-    public void getGenerationTimeWiresPorts(Netlist theNetlist, AttributeSet attrs) {
         myPorts
                 .add(Port.INPUT, "reset", 1, Keyboard.RST)
                 .add(Port.INPUT, "address", 16, Keyboard.ADR)
                 .add(Port.INOUT, "PS2_CLK", 1, Keyboard.PCLK)
                 .add(Port.INOUT, "PS2_DAT", 1, Keyboard.PDAT)
                 .add(Port.OUTPUT, "data", 8, Keyboard.DATA)
-                .add(Port.CLOCK, "wr_clk", 1, Keyboard.WCLK)
-                .add(Port.CLOCK, "rd_clk", 1, Keyboard.RCLK);
+                .add(Port.INPUT, "wr_clk", 1, Keyboard.WCLK)
+                .add(Port.INPUT, "rd_clk", 1, Keyboard.RCLK);
     }
 
     @Override
@@ -40,7 +37,7 @@ public class KeyboardHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
                 
                 PS2_Controller inst (
                     .CLOCK_50(wr_clk),
-                    .reset(1'b0),
+                    .reset(reset),
                     .received_data(ps2_data),
                     .received_data_en(available),
                     .PS2_CLK(PS2_CLK),

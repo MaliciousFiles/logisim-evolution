@@ -57,6 +57,7 @@ public class IoLibrary extends Library {
     new FactoryDescription(Tty.class, S.getter("ttyComponent"), "tty.gif"),
     new FactoryDescription(PortIo.class, S.getter("pioComponent"), "pio.gif"),
     new FactoryDescription(ReptarLocalBus.class, S.getter("repLBComponent"), "localbus.gif"),
+    new FactoryDescription(Video.class, S.getter("videoComponent"), "localbus.gif"),
   };
 
   private List<Tool> tools = null;
@@ -71,7 +72,6 @@ public class IoLibrary extends Library {
     if (tools == null) {
       tools = new ArrayList<>();
       tools.addAll(FactoryDescription.getTools(IoLibrary.class, DESCRIPTIONS));
-      tools.add(new AddTool(Video.factory));
     }
     return tools;
   }
