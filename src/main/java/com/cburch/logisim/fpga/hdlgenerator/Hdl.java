@@ -9,10 +9,14 @@
 
 package com.cburch.logisim.fpga.hdlgenerator;
 
+import com.cburch.logisim.comp.Component;
+import com.cburch.logisim.comp.EndData;
+import com.cburch.logisim.fpga.designrulecheck.ConnectionPoint;
 import com.cburch.logisim.fpga.designrulecheck.Netlist;
 import com.cburch.logisim.fpga.designrulecheck.netlistComponent;
 import com.cburch.logisim.fpga.file.FileWriter;
 import com.cburch.logisim.fpga.gui.Reporter;
+import com.cburch.logisim.instance.InstanceComponent;
 import com.cburch.logisim.prefs.AppPreferences;
 import com.cburch.logisim.util.CollectionUtil;
 import com.cburch.logisim.util.LineBuffer;
@@ -447,7 +451,11 @@ public class Hdl {
     final var nrOfBits = connectionInformation.getNrOfBits();
     if (nrOfBits == 1) {
       /* Here we have the easy case, just a single bit net */
-      netMap.put(sourceName, getNetName(comp, endIndex, floatingPinTiedToGround, theNets));
+      if (comp.getComponent().getEnd(endIndex).getType() != EndData.INPUT_OUTPUT) {
+        netMap.put(sourceName, getNetName(comp, endIndex, floatingPinTiedToGround, theNets));
+      } else {
+        netMap.put(sourceName, sourceName);
+      }
     } else {
       /*
        * Here we have the more difficult case, it is a bus that needs to

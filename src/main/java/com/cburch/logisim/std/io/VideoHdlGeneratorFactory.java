@@ -17,8 +17,7 @@ public class VideoHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
                 .add(Port.INPUT, "CLOCK_50", 1, Video.CLOCK_50)
                 .add(Port.INPUT, "clk", 1, Video.WR_CLK)
                 .add(Port.INPUT, "we", 1, Video.WE)
-                .add(Port.INPUT, "x", 6, Video.X)
-                .add(Port.INPUT, "y", 5, Video.Y)
+                .add(Port.INPUT, "wr_addr", 11, Video.WR_ADDR)
                 .add(Port.INPUT, "data", 8, Video.DATA)
                 .add(Port.OUTPUT, "VGA_R", 8, Video.VGA_R)
                 .add(Port.OUTPUT, "VGA_G", 8, Video.VGA_G)
@@ -121,7 +120,6 @@ public class VideoHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
                  *********************/
                 wire [7:0] memData;
                 wire [10:0] rd_addr = charX + charY * 64;
-                wire [10:0] wr_addr = x + y * 64;
                 
                 altsyncram	altsyncram_component (
                 				  .address_a (rd_addr),
@@ -146,7 +144,8 @@ public class VideoHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
                 				  .wren_b(we),
                 				  .rden_b(1'b0),
                 				  .q_b(),
-                				  .byteen_b(1'b1)
+                				  .byteena_b(1'b1),
+                				  .addressstall_b(1'b0),
                 				  );
                 defparam
                 		altsyncram_component.clock_enable_input_a = "BYPASS",
@@ -168,7 +167,7 @@ public class VideoHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
                 		altsyncram_component.widthad_b = 11,
                 		altsyncram_component.width_a = 8,
                 		altsyncram_component.width_b = 8,
-                		altsyncram_component.width_byteena_a = 1;
+                		altsyncram_component.width_byteena_a = 1,
                 		altsyncram_component.width_byteena_b = 1;
                 
                 
@@ -253,9 +252,6 @@ public class VideoHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
                 assign VGA_B = palette[p][7:0];
                 assign VGA_BLANK_N = ~(~hDisp || ~vDisp);
                 assign VGA_SYNC_N = 1'b1;
-                
-                
-                endmodule
                 """);
 
         return contents;

@@ -19,6 +19,7 @@ import com.cburch.logisim.circuit.SplitterFactory;
 import com.cburch.logisim.circuit.SubcircuitFactory;
 import com.cburch.logisim.circuit.Wire;
 import com.cburch.logisim.comp.Component;
+import com.cburch.logisim.comp.EndData;
 import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.fpga.gui.Reporter;
@@ -1795,7 +1796,9 @@ public class Netlist {
     if (comp.getFactory() instanceof Clock) {
       myClockGenerators.add(normalComponent);
     } else if (comp.getFactory() instanceof Pin) {
-      if (comp.getEnd(0).isInput()) {
+      if (comp.getEnd(0).getType() == EndData.INPUT_OUTPUT) {
+        myInOutPorts.add(normalComponent);
+      } else if (comp.getEnd(0).isInput()) {
         myOutputPorts.add(normalComponent);
       } else {
         myInputPorts.add(normalComponent);

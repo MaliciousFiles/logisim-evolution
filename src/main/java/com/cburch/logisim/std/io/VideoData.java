@@ -17,8 +17,8 @@ public class VideoData implements InstanceData, Cloneable {
         return buffer.clone();
     }
 
-    public void write(int x, int y, char value) {
-        buffer[x + y * 64] = value;
+    public void write(int addr, char value) {
+        buffer[addr] = value;
     }
 
     public Value lastClock(Value clock) {

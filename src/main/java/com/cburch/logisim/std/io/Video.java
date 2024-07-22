@@ -122,18 +122,17 @@ public class Video extends InstanceFactory {
   static final int CLOCK_50 = 0;
   static final int WR_CLK = 1;
   static final int WE = 2;
-  static final int X = 3;
-  static final int Y = 4;
-  static final int DATA = 5;
+  static final int WR_ADDR = 3;
+  static final int DATA = 4;
 
-  static final int VGA_R = 6;
-  static final int VGA_B = 7;
-  static final int VGA_G = 8;
-  static final int VGA_CLK = 9;
-  static final int VGA_SYNC_N = 10;
-  static final int VGA_BLANK_N = 11;
-  static final int VGA_HS = 12;
-  static final int VGA_VS = 13;
+  static final int VGA_R = 5;
+  static final int VGA_B = 6;
+  static final int VGA_G = 7;
+  static final int VGA_CLK = 8;
+  static final int VGA_SYNC_N = 9;
+  static final int VGA_BLANK_N = 10;
+  static final int VGA_HS = 11;
+  static final int VGA_VS = 12;
 
   private static final int WIDTH = 640;
   private static final int HEIGHT = 480;
@@ -143,13 +142,12 @@ public class Video extends InstanceFactory {
 
     setOffsetBounds(Bounds.create(-30, -(HEIGHT + 14), WIDTH + 14, HEIGHT + 14));
 
-    final var ps = new Port[14];
+    final var ps = new Port[13];
     ps[CLOCK_50] = new Port(-10, 0, Port.INPUT, 1);
     ps[WR_CLK] = new Port(0, 0, Port.INPUT, 1);
     ps[WE] = new Port(10, 0, Port.INPUT, 1);
-    ps[X] = new Port(40, 0, Port.INPUT, 6);
-    ps[Y] = new Port(50, 0, Port.INPUT, 5);
-    ps[DATA] = new Port(60, 0, Port.INPUT, 8);
+    ps[WR_ADDR] = new Port(40, 0, Port.INPUT, 11);
+    ps[DATA] = new Port(50, 0, Port.INPUT, 8);
     ps[VGA_R] = new Port(90, 0, Port.OUTPUT, 8);
     ps[VGA_G] = new Port(100, 0, Port.OUTPUT, 8);
     ps[VGA_B] = new Port(110, 0, Port.OUTPUT, 8);
@@ -161,8 +159,7 @@ public class Video extends InstanceFactory {
     ps[CLOCK_50].setToolTip(S.getter("video50ClockTip"));
     ps[WR_CLK].setToolTip(S.getter("videoWriteClockTip"));
     ps[WE].setToolTip(S.getter("videoWriteEnableTip"));
-    ps[X].setToolTip(S.getter("videoXTip"));
-    ps[Y].setToolTip(S.getter("videoYTip"));
+    ps[WR_ADDR].setToolTip(S.getter("videoWriteAddressTip"));
     ps[DATA].setToolTip(S.getter("videoDataTip"));
     ps[VGA_R].setToolTip(S.getter("videoVGARedTip"));
     ps[VGA_G].setToolTip(S.getter("videoVGAGreenTip"));
@@ -181,13 +178,12 @@ public class Video extends InstanceFactory {
 
     final var clk = circuitState.getPortValue(WR_CLK);
     final var we = circuitState.getPortValue(WE);
-    final var x = circuitState.getPortValue(X);
-    final var y = circuitState.getPortValue(Y);
+    final var addr = circuitState.getPortValue(WR_ADDR);
     final var data = circuitState.getPortValue(DATA);
 
     synchronized (state) {
       if (state.lastClock(clk) == Value.FALSE && clk == Value.TRUE) {
-        if (we.toLongValue() == 1) state.write((int) x.toLongValue(), (int) y.toLongValue(), (char) data.toLongValue());
+        if (we.toLongValue() == 1) state.write((int) addr.toLongValue(), (char) data.toLongValue());
       }
     }
   }
@@ -203,13 +199,20 @@ public class Video extends InstanceFactory {
 
     g.setColor(new Color(AppPreferences.COMPONENT_COLOR.get()));
 
-    painter.drawClock(VGA_CLK, Direction.NORTH);
+    painter.drawClock(CLOCK_50, Direction.NORTH);
     painter.drawClock(WR_CLK, Direction.NORTH);
     painter.drawBounds();
     painter.drawPort(WE);
-    painter.drawPort(X);
-    painter.drawPort(Y);
+    painter.drawPort(WR_ADDR);
     painter.drawPort(DATA);
+    painter.drawPort(VGA_R);
+    painter.drawPort(VGA_G);
+    painter.drawPort(VGA_B);
+    painter.drawPort(VGA_CLK);
+    painter.drawPort(VGA_SYNC_N);
+    painter.drawPort(VGA_BLANK_N);
+    painter.drawPort(VGA_HS);
+    painter.drawPort(VGA_VS);
 
     g.drawRect(x + 6, y + 6, WIDTH + 2, HEIGHT + 2);
 

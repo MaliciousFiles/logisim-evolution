@@ -63,6 +63,14 @@ public class CircuitHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
         myWires.addWire(String.format("%s%d", BUS_NAME, theNetlist.getNetId(wire)), wire.getBitWidth());
     if (inOutBubbles > 0)
       myPorts.add(Port.INOUT, LOCAL_INOUT_BUBBLE_BUS_NAME, inOutBubbles > 1 ? inOutBubbles : 0, 0);
+    for (var inout = 0; inout < theNetlist.numberOfInOutPorts(); inout++) {
+      final var selectedInput = theNetlist.getInOutPin(inout);
+      if (selectedInput != null)  {
+        final var name = selectedInput.getComponent().getAttributeSet().getValue(StdAttr.LABEL);
+        final var nrOfBits = selectedInput.getComponent().getAttributeSet().getValue(StdAttr.WIDTH).getWidth();
+        myPorts.add(Port.INOUT, CorrectLabel.getCorrectLabel(name), nrOfBits, 0);
+      }
+    }
     for (var clock = 0; clock < theNetlist.numberOfClockTrees(); clock++)
       myPorts.add(Port.INPUT, String.format("%s%d", CLOCK_TREE_NAME, clock), ClockHdlGeneratorFactory.NR_OF_CLOCK_BITS, 0);
     if (theNetlist.requiresGlobalClockConnection())
@@ -517,8 +525,7 @@ public class CircuitHdlGeneratorFactory extends AbstractHdlGeneratorFactory {
         if (selected != null) {
           final var pinLabel = CorrectLabel.getCorrectLabel(selected.getComponent().getAttributeSet().getValue(StdAttr.LABEL));
           if (topLevel) {
-            /* Do not exist yet in logisim */
-            /* TODO: implement by going over each bit */
+            portMap.put(pinLabel, pinLabel+"_0");
           } else {
             final var endId = nets.getEndIndex(componentInfo, pinLabel, false);
             if (endId < 0) {

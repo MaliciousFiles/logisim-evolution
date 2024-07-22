@@ -17,13 +17,9 @@ import com.cburch.logisim.data.BitWidth;
 import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.data.Direction;
 import com.cburch.logisim.data.Value;
+import com.cburch.logisim.fpga.data.ComponentMapInformationContainer;
 import com.cburch.logisim.gui.icons.KeyboardIcon;
-import com.cburch.logisim.instance.InstanceFactory;
-import com.cburch.logisim.instance.InstancePainter;
-import com.cburch.logisim.instance.InstancePoker;
-import com.cburch.logisim.instance.InstanceState;
-import com.cburch.logisim.instance.Port;
-import com.cburch.logisim.instance.StdAttr;
+import com.cburch.logisim.instance.*;
 import com.cburch.logisim.prefs.AppPreferences;
 import java.awt.Color;
 import java.awt.Font;
@@ -32,6 +28,7 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Keyboard extends InstanceFactory {
   /**
@@ -221,7 +218,6 @@ public class Keyboard extends InstanceFactory {
 
   public Keyboard() {
     super(_ID, S.getter("keyboardComponent"), new KeyboardHdlGeneratorFactory());
-//    setAttributes(new Attribute[] {}, new Object[] {});
     setOffsetBounds(Bounds.create(0, -20, WIDTH, HEIGHT));
     setIcon(new KeyboardIcon());
     setInstancePoker(Poker.class);

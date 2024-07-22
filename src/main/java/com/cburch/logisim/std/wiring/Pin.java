@@ -772,7 +772,7 @@ public class Pin extends InstanceFactory {
 
   private void configurePorts(Instance instance) {
     PinAttributes attrs = (PinAttributes) instance.getAttributeSet();
-    String endType = attrs.isOutput() ? Port.INPUT : Port.OUTPUT;
+    String endType = attrs.threeState ? Port.INOUT : attrs.isOutput() ? Port.INPUT : Port.OUTPUT;
     Port port = new Port(0, 0, endType, StdAttr.WIDTH);
     if (attrs.isOutput()) {
       port.setToolTip(S.getter("pinOutputToolTip"));
@@ -833,9 +833,11 @@ public class Pin extends InstanceFactory {
 
   @Override
   protected void instanceAttributeChanged(Instance instance, Attribute<?> attr) {
-    if (attr == ATTR_TYPE) {
+    if (attr == ATTR_TYPE || attr == ATTR_TRISTATE) {
       configurePorts(instance);
-    } else if (attr == StdAttr.WIDTH
+    }
+
+    if (attr == StdAttr.WIDTH
         || attr == StdAttr.FACING
         || attr == RadixOption.ATTRIBUTE
         || attr == ProbeAttributes.PROBEAPPEARANCE) {
